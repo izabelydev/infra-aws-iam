@@ -7,12 +7,12 @@ output "user_arn" {
 }
 
 output "password" {
-  value = aws_iam_user_login_profile.credentials.password
+  value     = aws_iam_user_login_profile.credentials.password
   sensitive = true
 }
 
 output "secret" {
-  value = aws_iam_access_key.access_key.secret
+  value     = aws_iam_access_key.access_key.secret
   sensitive = true
 }
 

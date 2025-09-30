@@ -7,8 +7,8 @@ resource "aws_iam_access_key" "access_key" {
 }
 
 resource "aws_iam_user_login_profile" "credentials" {
-  user = aws_iam_user.iam_user.name
-  password_length = 6
+  user                    = aws_iam_user.iam_user.name
+  password_length         = 6
   password_reset_required = true
 }
 
