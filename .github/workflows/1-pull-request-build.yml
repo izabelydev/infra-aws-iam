@@ -1,0 +1,78 @@
+name: "[FEATURE] Build e PR"
+
+on:
+  push:
+    branches:
+      - feature**
+
+jobs:
+  terraform-check:
+    name: "Validate Terraform"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
+      - name: Terraform fmt (check)
+        run: |
+          terraform fmt -check -recursive infra/
+
+      - name: Terraform init
+        working-directory: infra/
+        run: terraform init -backend=false
+
+      - name: Terraform validate
+        working-directory: infra/
+        run: terraform validate
+
+      - name: Terraform plan
+        if: github.event_name == 'pull_request'
+        working-directory: infra/
+        run: terraform plan -no-color -out=tfplan
+
+  pull-request:
+    name: “Criar branch develop”
+    needs: terraform-check
+    runs-on: ubuntu-latest
+    if: ${{ always() }}  
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Instalar GitHub CLI
+        run: sudo apt-get install -y gh
+
+      - name: Autenticar GitHub CLI
+        run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
+
+      - name: Verificar status do job anterior
+        run: |
+          if [ "${{ needs.terraform-check.result }}" != "success" ]; then
+            echo "Job terraform-check falhou ou não completou com sucesso. Pulando criação da branch develop."
+            exit 0
+          fi
+
+      - name: Configurar git user
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - name: Verificar se branch develop existe remoto
+        run: |
+          if ! git ls-remote --exit-code --heads origin develop; then
+            echo "Branch develop não existe. Criando..."
+            git checkout -b develop
+            git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} develop
+          else
+            echo "Branch develop já existe."
+          fi
+
+permissions:
+  contents: write
+  pull-requests: write
