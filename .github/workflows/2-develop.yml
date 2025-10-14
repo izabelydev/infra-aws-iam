@@ -34,12 +34,12 @@ jobs:
 
     steps:
       - name: Terraform validate
-        working-directory: infra/
+        working-directory: .
         run: terraform validate
 
       - name: Terraform plan
         if: github.event_name == 'pull_request'
-        working-directory: infra/
+        working-directory: .
         run: terraform plan -no-color -out=tfplan
 
   pull-request:
