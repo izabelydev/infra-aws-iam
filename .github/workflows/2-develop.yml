@@ -6,10 +6,9 @@ on:
       - develop
 
 jobs:
-  terraform-init:
+  terraform-init-check:
     name: "Terraform init e fmt (check)"
     runs-on: ubuntu-latest
-    environment: develop
 
     steps:
       - name: Checkout code
@@ -28,27 +27,13 @@ jobs:
         run: |
           terraform fmt -check -recursive infra/
 
-  terraform-check:
-    name: "Terraform validate e plan"
-    needs: terraform-init
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ var.TF_VERSION }}
-
       - name: Terraform validate
-        working-directory: .
+        working-directory: infra/
         run: terraform validate
 
       - name: Terraform plan
         if: github.event_name == 'pull_request'
-        working-directory: .
+        working-directory: infra/
         run: terraform plan -no-color -out=tfplan
 
   pull-request:
