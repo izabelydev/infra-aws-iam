@@ -51,13 +51,8 @@ jobs:
           terraform_version: $TF_VERSION
 
       - name: Definir Workspace
-        run: |
-          branch="${GITHUB_REF##*/}"
-          if [ "$branch" = "main" ]; then
-            echo "TF_WORKSPACE=${{ secrets.HCP_WORKSPACE_PRD }}" >> $GITHUB_ENV
-          else
-            echo "TF_WORKSPACE=${{ secrets.HCP_WORKSPACE_DEV }}" >> $GITHUB_ENV
-          fi
+        working-directory: infra/
+        run: terraform workspace select
 
       - name: Configurar credenciais HCP Terraform (automático)
         env:
