@@ -9,6 +9,7 @@ jobs:
   terraform-init:
     name: "Terraform init e fmt (check)"
     runs-on: ubuntu-latest
+    environment: develop
 
     steps:
       - name: Checkout code
@@ -17,7 +18,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.11.4"
+          terraform_version: ${{ var.TF_VERSION }}
 
       - name: Terraform init
         working-directory: infra/
@@ -33,6 +34,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ var.TF_VERSION }}
+
       - name: Terraform validate
         working-directory: .
         run: terraform validate
