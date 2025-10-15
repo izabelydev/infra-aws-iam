@@ -59,10 +59,24 @@ jobs:
             echo "TF_WORKSPACE=${{ secrets.HCP_WORKSPACE_DEV }}" >> $GITHUB_ENV
           fi
 
-      - name: Autenticar no HCP Terraform
+      - name: Configurar credenciais HCP Terraform (automático)
         env:
           TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
-        run: terraform login || true
+        run: |
+          # Cria diretório de credenciais se não existir
+          mkdir -p ~/.terraform.d
+          
+          # Configura token automaticamente sem interação
+          cat > ~/.terraform.d/credentials.tfrc.json <<EOF
+          {
+            "credentials": {
+              "app.terraform.io": {
+                "token": "$TF_TOKEN_app_terraform_io"
+              }
+            }
+          }
+          EOF
+          echo "✓ Credenciais do HCP Terraform configuradas automaticamente"
 
       - name: Terraform init (backend HCP)
         working-directory: infra/
