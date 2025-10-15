@@ -80,7 +80,7 @@ jobs:
 
   pull-request:
     runs-on: ubuntu-latest
-    needs: terraform-init-check
+    needs: terraform-apply
     steps:
       - name: Verificar código
         uses: actions/checkout@v3
