@@ -1,6 +1,6 @@
 variable "username" {
   type    = string
-  default = "izabelydev"
+  default = "izabelyLourencoDev"
 }
 
 variable "policy_name" {
